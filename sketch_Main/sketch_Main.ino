@@ -2,6 +2,8 @@
 #include <TFT_eSPI.h> // Hardware-specific library
 #include <SPI.h>
 #include <Wire.h>
+#include <OneWire.h> // for temperature measurement
+#include <DallasTemperature.h> // for temperature measurement
 
 //Defines
 #define LOOP_PERIOD 100 // Display updates every 35 ms
@@ -31,6 +33,14 @@ int distance;
 // pin numbers for distance sensor
 const int trigPin = 13;
 const int echoPin = 14;
+
+// GPIO where the DS18B20 (temperature sensor) is connected to
+const int oneWireBus = 27;
+
+// Setup a oneWire instance to communicate with any OneWire devices
+OneWire oneWire(oneWireBus);
+// Pass our oneWire reference to Dallas Temperature sensor 
+DallasTemperature sensors(&oneWire);
 
 
 
@@ -95,22 +105,28 @@ void loop() {
     //Serial.print("Duration: ");
     //Serial.println(duration);
     // Calculating the distance
-    distance= duration*0.034/2;
+    distance= duration*0.034/2*10;
     // Prints the distance on the Serial Monitor
     //Serial.print("Distance: ");
     //Serial.println(distance);
+
+    //temperature measurement
+    sensors.requestTemperatures(); 
+    float temperatureC = sensors.getTempCByIndex(0);
+    float temperatureF = sensors.getTempFByIndex(0);
     
     //display
     //tft.fillScreen(TFT_BLACK);
     String valMoi = String(soilmoisturepercent);
     String valWat = String(distance);
+    String valTemp = String(temperatureC);
     // Set the padding to the maximum width that the digits could occupy in font 4
     // This ensures small numbers obliterate large ones on the screen
     tft.setTextPadding( tft.textWidth("100%", 4) );//setzt einen Raum der länge und Größe des angegebenen Strings (hier: Schriftgröße 4)
     tft.drawString(valMoi+"%", x, 40, 4);
     tft.drawString("100%", x, 80, 4);
     tft.drawString("0%", x, 120, 4);
-    tft.drawString("22*C", x, 160, 4);
+    tft.drawString(valTemp+"°C", x, 160, 4);
     tft.setTextPadding( tft.textWidth("8888ml", 4) );//setzt einen Raum der länge und Größe des angegebenen Strings (hier: Schriftgröße 4)
     tft.drawString(valWat+"ml", x+20, 200, 4);
     // Reset text padding to 0 otherwise all future rendered strings will use it!
