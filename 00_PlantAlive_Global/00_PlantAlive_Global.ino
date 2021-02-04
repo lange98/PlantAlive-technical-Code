@@ -40,6 +40,10 @@ uint32_t updateTime = 0; // time for next update
 TFT_eSPI tft = TFT_eSPI(); // Invoke custom library
 uint16_t x = tft.width()/2; // center of the screen horizontal
 uint16_t y = tft.height()/2; // center of the screen vertical
+const int buttonLeft = 26;
+const int buttonMidLeft = 25;
+const int buttonMidRight = 33;
+const int buttonRight = 32;
 
 //--------------------------Moisture-----------------------------
 const int AirValue = 3583;   //max value measured in air --> needs to be adapted

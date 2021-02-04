@@ -2,6 +2,7 @@
 
 void setup(void) { 
   setupDisplay();
+  setupButtons();
   setupUltrasonic();
   
   Serial.begin(115200); // For debug
