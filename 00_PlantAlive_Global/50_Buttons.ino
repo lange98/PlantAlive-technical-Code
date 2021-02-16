@@ -43,7 +43,7 @@ void setButton(String btn){
     btnEnter = true;
   }
   //Serial.println("Button set");
-  debounceTime = millis() + debouncePeriod;
+  debounceTime = millis() + debouncePeriod; // wait at least <debouncePeroid> ms from now on
 }
 
 /*
@@ -65,26 +65,30 @@ void unsetAllButtons(){
 }
 
 bool isButtonPressed(){
-    return(btnBack || btnMinus || btnPlus || btnEnter); 
+    return(btnBack || btnMinus || btnPlus || btnEnter); // return true if any button is pressed
 }
 
-void doButtons(){
+void doButtons(){ //display control via buttons
+  // check if any button has been pressed
   if (!isButtonPressed()){
     return;
   }
-  int btn;
+  
+  String btn;
   if (btnEnter){
-    btn = 3;
+    btn = "enter";
   }
   else if(btnPlus){
-    btn = 2;
+    btn = "plus";
   }
   else if(btnMinus){
-    btn = 1;
+    btn = "minus";
   }
   else if(btnBack){
-    btn = 0;
+    btn = "back";
   }
-  Serial.println("button"+String(btn)+" pressed!");
+  Serial.println("button "+btn+" pressed!");
+
+  updateDisplay(true, btn);
   unsetAllButtons();
 }
