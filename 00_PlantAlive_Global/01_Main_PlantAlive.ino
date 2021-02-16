@@ -10,7 +10,6 @@ void setup(void) {
 }
   
 void loop() {
-
   if (updateTime <= millis()) {
     updateTime = millis() + LOOP_PERIOD;
 
@@ -18,6 +17,10 @@ void loop() {
     distance = calcDistance();
     temperatureC = calcTemperature();
     updateDisplay(soilmoisturepercent, distance, temperatureC);
+  }
+
+  if (debounceTime <= millis()){
+    doButtons();
   }
   
 }

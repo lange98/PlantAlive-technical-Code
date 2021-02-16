@@ -1,17 +1,17 @@
 //***********************************************All Interrupt Service Routines****************************************
 
-void IRAM_ATTR isr1() {
-  debounce(1);
+void IRAM_ATTR isrBack() {
+  setButton("back");
 }
 
-void IRAM_ATTR isr2() {
-  debounce(2);
+void IRAM_ATTR isrMinus() {
+  setButton("minus");
 }
 
-void IRAM_ATTR isr3() {
-  debounce(3);
+void IRAM_ATTR isrPlus() {
+  setButton("plus");
 }
 
-void IRAM_ATTR isr4() {
-  debounce(4);
+void IRAM_ATTR isrEnter() {
+  setButton("enter");
 }

@@ -1,7 +1,7 @@
 //***********************************************All global code****************************************
 
 
-//Includes
+//------------------Includes
 //--------------------------control------------------------------
 //#include <SPI.h>
 //#include <Wire.h>
@@ -16,9 +16,11 @@
 //--------------------------Temperature--------------------------
 #include <OneWire.h> // for temperature measurement
 #include <DallasTemperature.h> // for temperature measurement
+//--------------------------Buttons------------------------------
 
 
-//Defines
+
+//------------------Defines
 //--------------------------control------------------------------
 #define LOOP_PERIOD 100 // Display updates every 35 ms
 
@@ -31,8 +33,20 @@
 
 //--------------------------Temperature--------------------------
 
+//--------------------------Buttons------------------------------
+#define initState 0
+#define defaultState 1
+#define menuState 2
+#define changeMoistureState 3
 
-//Declares
+#define leftPIN 26
+#define middleLeftPIN 25
+#define middleRightPIN 33
+#define rightPIN 32
+
+#define debouncePeriod 10 // im ms
+
+//------------------Declares
 //--------------------------control------------------------------
 uint32_t updateTime = 0; // time for next update
 
@@ -40,11 +54,6 @@ uint32_t updateTime = 0; // time for next update
 TFT_eSPI tft = TFT_eSPI(); // Invoke custom library
 uint16_t x = tft.width()/2; // center of the screen horizontal
 uint16_t y = tft.height()/2; // center of the screen vertical
-const int buttonLeft = 26;
-const int buttonMidLeft = 25;
-const int buttonMidRight = 33;
-const int buttonRight = 32;
-
 //--------------------------Moisture-----------------------------
 const int AirValue = 3583;   //max value measured in air --> needs to be adapted
 const int WaterValue = 1550;  //min value measured in water --> needs to be adapted
@@ -63,3 +72,14 @@ const int oneWireBus = 27;// GPIO where the DS18B20 (temperature sensor) is conn
 OneWire oneWire(oneWireBus);// Setup a oneWire instance to communicate with any OneWire devices
 DallasTemperature sensors(&oneWire);// Pass our oneWire reference to Dallas Temperature sensor 
 float temperatureC; //temperature-variable
+//--------------------------Buttons------------------------------
+const int btnPinBack = leftPIN;
+const int btnPinMinus = middleLeftPIN;
+const int btnPinPlus = middleRightPIN;
+const int btnPinEnter = rightPIN;
+bool btnBack; //0
+bool btnMinus; //1
+bool btnPlus; //2
+bool btnEnter; //3
+int currentState = initState;
+int debounceTime;
