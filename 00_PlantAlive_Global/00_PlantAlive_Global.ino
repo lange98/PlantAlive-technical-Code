@@ -2,55 +2,32 @@
 
 
 //------------------Includes
-//--------------------------control------------------------------
 //#include <SPI.h>
 //#include <Wire.h>
-
-//--------------------------Display------------------------------
-#include <TFT_eSPI.h> // Hardware-specific library
-
-//--------------------------Moisture-----------------------------
-
-//--------------------------Distance-----------------------------
-
-//--------------------------Temperature--------------------------
+#include <WiFi.h> //get wifi mac adress
+#include <TFT_eSPI.h> // Hardware-specific library for Display
 #include <OneWire.h> // for temperature measurement
 #include <DallasTemperature.h> // for temperature measurement
-//--------------------------Buttons------------------------------
-
+#include <PubSubClient.h> // for MQTT
 
 
 //------------------Defines
-//--------------------------control------------------------------
 #define LOOP_PERIOD 100 // Display updates every 35 ms
-
-//--------------------------Display------------------------------
-#define CF_OL24 &Orbitron_Light_24
-
-//--------------------------Moisture-----------------------------
-
-//--------------------------Distance-----------------------------
-
-//--------------------------Temperature--------------------------
-
-//--------------------------Buttons------------------------------
-#define initState 0
-#define defaultState 1
-#define menuState 2
-#define changeMoistureState 3
-
-#define leftPIN 26
-#define middleLeftPIN 25
-#define middleRightPIN 33
-#define rightPIN 32
-
+#define CF_OL24 &Orbitron_Light_24 //Display font
+#define leftPIN 26 //button-pin defines
+#define middleLeftPIN 25 //button-pin defines
+#define middleRightPIN 33 //button-pin defines
+#define rightPIN 32 //button-pin defines
 #define debouncePeriod 10 // im ms
+
 
 //------------------Declares
 //--------------------------control------------------------------
 uint32_t updateTime = 0; // time for next update
 int soilMoistureLimit;
 int soilMoistureTemp;
+const String serialNumber = WiFi.macAddress();
+const String jo = "jo";
 //--------------------------Display------------------------------
 TFT_eSPI tft = TFT_eSPI(); // Invoke custom library
 uint16_t x = tft.width()/2; // center of the screen horizontal
@@ -74,6 +51,7 @@ const int oneWireBus = 27;// GPIO where the DS18B20 (temperature sensor) is conn
 OneWire oneWire(oneWireBus);// Setup a oneWire instance to communicate with any OneWire devices
 DallasTemperature sensors(&oneWire);// Pass our oneWire reference to Dallas Temperature sensor 
 float temperatureC; //temperature-variable
+
 //--------------------------Buttons------------------------------
 const int btnPinBack = leftPIN;
 const int btnPinMinus = middleLeftPIN;
@@ -84,3 +62,7 @@ bool btnMinus;
 bool btnPlus;
 bool btnEnter;
 int debounceTime; // for button-debouncing
+
+//--------------------------MQTT------------------------------
+WiFiClient espClient; //allows to create a connection to a certain IP and port.
+PubSubClient client(espClient); //receives as input of the constructor the previously defined WiFiClient object
