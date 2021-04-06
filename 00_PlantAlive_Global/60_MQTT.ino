@@ -1,12 +1,8 @@
 
-
-
 //---------------------Initialise
-
-const char* ssid = "REPLACE_WITH_YOUR_SSID"; //Network SSID
-const char* password = "REPLACE_WITH_YOUR_PASSWORD"; //Network PASSWORD
-const char* mqtt_server = "YOUR_MQTT_BROKER_IP_ADDRESS"; //MQTT Broker IP address
-//EXAMPLE: const char* mqtt_server = "192.168.1.144";
+const char* ssid = "Funknetz-blablub"; //Network SSID
+const char* password = "987gast654"; //Network PASSWORD
+const char* mqtt_server = "192.168.179.37"; //MQTT Broker IP address; EXAMPLE: "192.168.1.144"
 const int mqttPort = 1883; //MQTT Port
 
 
@@ -37,33 +33,15 @@ void setup_wifi() {
 
 //---------------------specify mqtt server adress
 void setup_MQTT(){
+  Serial.println("set MQTT Server");
   client.setServer(mqtt_server, mqttPort); //specify the address and the port of the MQTT server
   client.setCallback(callback);
+  Serial.println("done!");
   /*  
    * Use the setCallback method on the same object to specify a handling function.
    * This handling function will be executed when a MQTT message is received on a subscribed topic.
    * We will leave the code of this function for latter.  
    */
-}
-
-
-
-//---------------------callback function
-//In the callback() function, the ESP32 receives the MQTT messages of the subscribed topics. According to the MQTT topic and message, it turns the LED on or off:
-//function get automatically called when message arrives
-void callback(char* topic, byte* message, unsigned int mLength) {
-  Serial.print("Message arrived on topic: ");
-  Serial.print(topic);
-  Serial.print(". Message: ");
-  String messageTemp;
-  
-  for (int i = 0; i < mLength; i++) {
-    Serial.print((char)message[i]);
-    messageTemp += (char)message[i];
-  }
-  Serial.println();
-
-  // Feel free to add more if statements to control more GPIOs with MQTT
 }
 
 
@@ -83,7 +61,13 @@ void reconnect() {
        * Plantalive pots should differ in mgtt User name...?
        */
       Serial.println("connected");
-      client.subscribe("esp32/output"); // Subscribe to the wanted topic to receive messages published on that topic from other clients.
+
+      //publish serial number
+      publishSerialNumber(serialNumber);
+
+      //subscribe channels
+      client.subscribe(channelMoisture);// Subscribe to the wanted topic to receive messages published on that topic from other clients.
+      client.subscribe(channelInfo);// Subscribe to the wanted topic to receive messages published on that topic from other clients.
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -95,19 +79,98 @@ void reconnect() {
 }
 
 
-//---------------------publish
-void publishMQTTMsg(int val){
-  //You need to convert the temperature float variable to a char array, so that you can publish the temperature reading in the esp32/temperature topic:
-  char msgArray[8];
-  float testFloat = 10.2;
-  dtostrf(testFloat, 1, 2, msgArray); //float to char array
-  client.publish("esp32/humidity", msgArray);
-
-  //int to char array???
-  /*
-   * int num = 1234;
-   * char cstr[16];
-   * itoa(num, cstr, 10);
-   */
+//---------------------callback function
+//In the callback() function, the ESP32 receives the MQTT messages of the subscribed topics. According to the MQTT topic and message, it turns the LED on or off:
+//function get automatically called when message arrives
+void callback(char* topic, byte* message, unsigned int mLength) {
+  Serial.print("Message arrived on topic: ");
+  Serial.print(topic);
+  Serial.print(". Message: ");
+  String messageTemp;
   
+  for (int i = 0; i < mLength; i++) {
+    Serial.print((char)message[i]);
+    messageTemp += (char)message[i];
+  }
+  Serial.println();
+
+  if(strstr(topic, "target") != NULL){ //if topic contains word "target" --> bidirectional target Moisture topic
+    //set new targetMoisture
+    //soilMoistureLimit = messageTemp.toInt();
+    StaticJsonDocument<256> doc;
+    deserializeJson(doc, message, mLength);
+    int targetMoisture = doc[TargetMoistureKey];
+    soilMoistureLimit = targetMoisture;
+    //Serial.println(String(targetMoisture));
+    //Serial.println("new target Moisture set to messageTemp");
+  }
+  // Feel free to add more if statements to control more GPIOs with MQTT
 }
+
+
+//---------------------help functions
+void cyclicMQTTStuff(){
+  if (!client.connected()) {
+    reconnect();
+  }
+  client.loop(); //This should be called regularly to allow the client to process incoming messages and maintain its connection to the server.
+  publishMQTTMsgInfo();
+}
+
+
+//---------------------publish
+void publishSerialNumber(String serialNumber){
+  const char* channel[]={channelNew};
+  
+  // Length (with one extra character for the null terminator)
+  int str_len = serialNumber.length() + 1; 
+  
+  // Prepare the character array (the buffer) 
+  char char_array[str_len];
+  
+  // Copy it over 
+  //serialNumber.toCharArray(char_array, str_len);
+  serialNumber.toCharArray(char_array, str_len);
+  
+  //publish
+  client.publish(channel[0], char_array);
+}
+
+void publishMQTTMsgTargetMoisture(){ //channel needs to be declared dynamically
+  const char* channel[]={channelMoisture};
+
+  StaticJsonDocument<100> testDocument;
+  testDocument[TargetMoistureKey] = soilMoistureLimit;
+
+  char MSGBuffer[100];
+  serializeJson(testDocument, MSGBuffer);
+
+  client.publish(channel[0], MSGBuffer);
+}
+
+void publishMQTTMsgInfo(){ //channel needs to be declared dynamically
+  const char* channel[]={channelInfo};
+
+  StaticJsonDocument<100> testDocument;
+  testDocument[MoistureKey] = soilmoisturePercent;
+  testDocument[TemperatureKey] = temperatureC;
+  testDocument[DistanceKey] = distance;
+
+  char MSGBuffer[100];
+  serializeJson(testDocument, MSGBuffer);
+
+  client.publish(channel[0], MSGBuffer);
+}
+
+
+
+////You need to convert the temperature float variable to a char array, so that you can publish the temperature reading in the targethumidity topic:
+//char temperatureMSG[8];
+//dtostrf(temperatureC, 1, 2, temperatureMSG); //float to char array
+
+////You need to convert the moisture int variable to a char array:
+//char moistureMSG[16];
+//itoa(soilmoisturePercent, moistureMSG, 10); //10 means decimal
+////You need to convert the distance int variable to a char array:
+//char distanceMSG[16];
+//itoa(distance, distanceMSG, 10); //10 means decimal

@@ -12,7 +12,7 @@ void setupDisplay(){
 }
 
 void updateDisplay (bool isBtnPressed, String btn){
-  Serial.println(currentState);
+  //Serial.println(currentState);
   /*
    * main function and link for display control
    * checks is button has been pressed --> statemachine

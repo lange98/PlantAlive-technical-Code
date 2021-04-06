@@ -7,11 +7,12 @@ void setup(void) {
   setupButtons();
   setupUltrasonic();
 
-  //bild up wifi communication
-  // set soilMoistureLimit
+
+   // set soilMoistureLimit
   soilMoistureLimit = 50;
   soilMoistureTemp = soilMoistureLimit;
 
+  //bild up wifi communication
   setup_wifi();
   setup_MQTT();
 
@@ -26,7 +27,8 @@ void loop() {
     calcDistance();
     calcTemperature();
     updateDisplay(false, "");
-    Serial.println(serialNumber);
+    cyclicMQTTStuff();
+    //Serial.println(serialNumber);
 
     if (soilmoisturePercent<soilMoistureLimit){
       //pump
@@ -41,11 +43,4 @@ void loop() {
   if (debounceTime <= millis()){
     doButtons(); // display control via buttons
   }
-
-
-  // Communiation via MQTT
-  if (!client.connected()) {
-    reconnect();
-  }
-  client.loop(); //This should be called regularly to allow the client to process incoming messages and maintain its connection to the server.
 }

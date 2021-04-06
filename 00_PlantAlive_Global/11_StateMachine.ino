@@ -49,6 +49,7 @@ String stateMachine(String btn){
   else if (currentState == "setMoisture"){
     if(btn == "enter"){
       soilMoistureLimit = soilMoistureTemp;
+      publishMQTTMsgTargetMoisture();
       changeState();
       displayMenu();
       return("menu");

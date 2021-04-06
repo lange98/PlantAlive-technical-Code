@@ -9,16 +9,27 @@
 #include <OneWire.h> // for temperature measurement
 #include <DallasTemperature.h> // for temperature measurement
 #include <PubSubClient.h> // for MQTT
+#include <ArduinoJson.h> // for MQTT
 
 
 //------------------Defines
-#define LOOP_PERIOD 100 // Display updates every 35 ms
+#define LOOP_PERIOD 5000 // Display updates every 35 ms
 #define CF_OL24 &Orbitron_Light_24 //Display font
 #define leftPIN 26 //button-pin defines
 #define middleLeftPIN 25 //button-pin defines
 #define middleRightPIN 33 //button-pin defines
 #define rightPIN 32 //button-pin defines
 #define debouncePeriod 10 // im ms
+
+#define MoistureKey "moisture"
+#define TemperatureKey "temperature"
+#define DistanceKey "waterlevel"
+#define TargetMoistureKey "targetMoisture"
+
+#define AddressMAC 30:AE:A4:F3:09:DC
+#define channelNew "new" //anmeldung neuer Geräte
+#define channelMoisture "30:AE:A4:F3:09:DC/targetMoisture" //for moisture limits -> bidirectional; channel needs to be declared dynamically 
+#define channelInfo "30:AE:A4:F3:09:DC/info" //for sensor data -> unidirectional; channel needs to be declared dynamically
 
 
 //------------------Declares
@@ -27,7 +38,6 @@ uint32_t updateTime = 0; // time for next update
 int soilMoistureLimit;
 int soilMoistureTemp;
 const String serialNumber = WiFi.macAddress();
-const String jo = "jo";
 //--------------------------Display------------------------------
 TFT_eSPI tft = TFT_eSPI(); // Invoke custom library
 uint16_t x = tft.width()/2; // center of the screen horizontal
