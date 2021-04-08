@@ -12,10 +12,16 @@ void setup(void) {
   soilMoistureLimit = 50;
   soilMoistureTemp = soilMoistureLimit;
 
-  //bild up wifi communication
+  //build up wifi communication
+  displayBoot("wifi"); //show "connecting to wifi" on display
   setup_wifi();
+  //build up mqtt-server-connection
   setup_MQTT();
+  displayBoot("mqtt"); //show "connecting to mqtt" on display
+  reconnect();
 
+
+  bootingDone();
   updateTime = millis(); // Next update time
 }
   
@@ -27,8 +33,10 @@ void loop() {
     calcDistance();
     calcTemperature();
     updateDisplay(false, "");
-    cyclicMQTTStuff();
-    //Serial.println(serialNumber);
+
+    if (connectedToMQTT){
+      cyclicMQTTStuff();
+    }
 
     if (soilmoisturePercent<soilMoistureLimit){
       //pump

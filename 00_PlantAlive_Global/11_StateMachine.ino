@@ -2,8 +2,8 @@
 
 String stateMachine(String btn){
   if (currentState == "init"){
-    displayDefault();
-    return ("default");
+    displayBoot("");
+    return ("init");
   }
   else if (currentState == "default"){
     if(btn == "enter"){

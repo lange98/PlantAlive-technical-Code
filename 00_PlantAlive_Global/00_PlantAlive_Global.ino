@@ -13,13 +13,15 @@
 
 
 //------------------Defines
-#define LOOP_PERIOD 5000 // Display updates every 35 ms
+#define LOOP_PERIOD 100 // Display updates every 35 ms
 #define CF_OL24 &Orbitron_Light_24 //Display font
 #define leftPIN 26 //button-pin defines
 #define middleLeftPIN 25 //button-pin defines
 #define middleRightPIN 33 //button-pin defines
 #define rightPIN 32 //button-pin defines
 #define debouncePeriod 10 // im ms
+
+#define Limit0 
 
 #define MoistureKey "moisture"
 #define TemperatureKey "temperature"
@@ -38,6 +40,8 @@ uint32_t updateTime = 0; // time for next update
 int soilMoistureLimit;
 int soilMoistureTemp;
 const String serialNumber = WiFi.macAddress();
+bool connectedToWifi = false;
+bool connectedToMQTT = false;
 //--------------------------Display------------------------------
 TFT_eSPI tft = TFT_eSPI(); // Invoke custom library
 uint16_t x = tft.width()/2; // center of the screen horizontal

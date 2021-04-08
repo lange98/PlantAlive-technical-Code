@@ -20,20 +20,28 @@ void setup_wifi() {
   Serial.println(ssid);
   WiFi.begin(ssid, password);
 
+  int tempCounter = 0;
   while (WiFi.status() != WL_CONNECTED) {
+    if (tempCounter>=30){ //30 attempts = 15 Seconds
+      connectedToWifi = false;
+      Serial.println("");
+      Serial.println("WiFi not connected");
+      return;
+    }
     delay(500);
     Serial.print(".");
+    tempCounter = tempCounter+1;
   }
-  
   Serial.println("");
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+  connectedToWifi = true;
 }
 
 //---------------------specify mqtt server adress
 void setup_MQTT(){
-  Serial.println("set MQTT Server");
+  Serial.print("set MQTT Server: ");
   client.setServer(mqtt_server, mqttPort); //specify the address and the port of the MQTT server
   client.setCallback(callback);
   Serial.println("done!");
@@ -44,15 +52,17 @@ void setup_MQTT(){
    */
 }
 
-
 //---------------------connect to the mgtt server
 //If not connected, reconnect i this function
 //In the reconnect() function, you can subscribe to MQTT topics.
 void reconnect() {
-  // Loop until we're reconnected
-  while (!client.connected()) {
-    Serial.print("Attempting MQTT connection...");
-    // Attempt to connect
+  int tempCounter = 0;
+  while (!client.connected()) {// Loop until we're reconnected
+    if (tempCounter>=1){ // 3 attempts = 15 Seconds
+      connectedToMQTT = false;
+      break;
+    }
+    Serial.print("Attempting MQTT connection..."); // Attempt to connect
     if (client.connect("PlantAliveUser")) {
       /*
        * --> boolean connect (clientID, [username, password], [willTopic, willQoS, willRetain, willMessage], [cleanSession])
@@ -68,11 +78,14 @@ void reconnect() {
       //subscribe channels
       client.subscribe(channelMoisture);// Subscribe to the wanted topic to receive messages published on that topic from other clients.
       client.subscribe(channelInfo);// Subscribe to the wanted topic to receive messages published on that topic from other clients.
+      connectedToMQTT = true;
     } else {
+      connectedToMQTT = false;
       Serial.print("failed, rc=");
       Serial.print(client.state());
       Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
+      tempCounter = tempCounter+1;
+      Serial.println("counter: "+String(tempCounter));
       delay(5000);
     }
   }
