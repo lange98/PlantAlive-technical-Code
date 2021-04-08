@@ -109,9 +109,10 @@ void displayMenu(){
 void displaySetMoisture(){
   //create display layout
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawString("change Moisture", 5, 20, 4);
-  tft.setTextPadding( tft.textWidth("100%", 6) );
-  tft.drawString(String(soilMoistureTemp), 10, 80, 4);
+  tft.drawString("Change Moisture", 5, 20, 4);
+  tft.setTextColor(TFT_BLACK, TFT_WHITE);
+  tft.setTextPadding( tft.textWidth("100%", 4) );
+  tft.drawString(String(soilMoistureTemp)+"%", x-30, 80, 4);
   //Buttons
   tft.setTextPadding( tft.textWidth("8888", 4) );
   tft.setTextColor(TFT_BLACK, TFT_RED);// for variable values (black font, white background)

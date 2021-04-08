@@ -21,7 +21,7 @@
 #define rightPIN 32 //button-pin defines
 #define debouncePeriod 10 // im ms
 
-#define Limit0 
+//#define Limit0 
 
 #define MoistureKey "moisture"
 #define TemperatureKey "temperature"
@@ -42,6 +42,7 @@ int soilMoistureTemp;
 const String serialNumber = WiFi.macAddress();
 bool connectedToWifi = false;
 bool connectedToMQTT = false;
+TaskHandle_t TaskMQTT; //MQTT tast --> will be running on core 1
 //--------------------------Display------------------------------
 TFT_eSPI tft = TFT_eSPI(); // Invoke custom library
 uint16_t x = tft.width()/2; // center of the screen horizontal

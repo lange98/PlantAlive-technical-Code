@@ -73,13 +73,19 @@ String stateMachine(String btn){
 }
 
 void incSoilMoistureTemp(){
-  if(soilMoistureTemp<=90){
+  if(soilMoistureTemp%10 != 0){
+    soilMoistureTemp = soilMoistureTemp+(10-(soilMoistureTemp%10)); // auf 10er aufrunden
+  }
+  else if(soilMoistureTemp<=90){
     soilMoistureTemp += 10;
   }
 }
 
 void decSoilMoistureTemp(){
-  if(soilMoistureTemp>=10){
+  if(soilMoistureTemp%10 != 0){
+    soilMoistureTemp = soilMoistureTemp-(soilMoistureTemp%10); // auf 10er aufrunden
+  }
+  else if(soilMoistureTemp>=10){
     soilMoistureTemp -= 10;
   }
 }
