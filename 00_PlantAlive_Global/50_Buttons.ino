@@ -42,7 +42,6 @@ void setButton(String btn){
   else if (btn == "enter"){
     btnEnter = true;
   }
-  //Serial.println("Button set");
   debounceTime = millis() + debouncePeriod; // wait at least <debouncePeroid> ms from now on
 }
 
@@ -73,7 +72,6 @@ void doButtons(){ //display control via buttons
   if (!isButtonPressed()){
     return;
   }
-  
   String btn;
   if (btnEnter){
     btn = "enter";

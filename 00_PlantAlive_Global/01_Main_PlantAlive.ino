@@ -39,7 +39,7 @@ void setup(void) {
 
 }
   
-void loop() {
+void loop() { //calculate sensor data; activate pump; check distance
   if (updateTime <= millis()) {
     updateTime = millis() + LOOP_PERIOD;
 
@@ -50,20 +50,18 @@ void loop() {
     calcTemperature();
     updateDisplay(false, "");
 
+    if (debounceTime <= millis()){
+      doButtons(); // display control via buttons
+    }
+
     if (soilmoisturePercent<soilMoistureLimit){
       //pump
-      return;
     }
     if (distance<1000){//irgend ein limit
       //alert
-      return;
     }
     //Serial.print("stuff running on core ");
     //Serial.println(xPortGetCoreID());
-  }
-
-  if (debounceTime <= millis()){
-    doButtons(); // display control via buttons
   }
 }
 
@@ -72,7 +70,7 @@ void TaskMQTTcode( void * Parameter ){ // task for MQTT publishing --> core 1
   //Serial.println(xPortGetCoreID());
   delay(10000);
   
-  for(;;){
+  for(;;){ // conect to wifi; connect to mqtt server; oublish data
     setup_wifi();//build up wifi communication
     connectMQTT();//build up mqtt-server-connection
     if (client.connected()){
@@ -80,6 +78,6 @@ void TaskMQTTcode( void * Parameter ){ // task for MQTT publishing --> core 1
     }
     disconnectMQTT();
     endWifi();
-    delay(10000);
+    delay(30000);
   }
 }

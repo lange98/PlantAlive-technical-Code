@@ -74,7 +74,7 @@ bool btnBack;
 bool btnMinus;
 bool btnPlus;
 bool btnEnter;
-int debounceTime; // for button-debouncing
+uint32_t debounceTime; // for button-debouncing
 
 //--------------------------MQTT and WIFI------------------------
 bool annoyingTryingToConnectIndicator;
