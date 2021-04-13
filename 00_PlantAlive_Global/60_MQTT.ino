@@ -13,8 +13,8 @@ int value = 0;
 
 //---------------------Wifi connection
 void setup_wifi() {
+  annoyingTryingToConnectIndicator = true;
   delay(10);
-  // We start by connecting to a WiFi network
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
@@ -23,7 +23,6 @@ void setup_wifi() {
   int tempCounter = 0;
   while (WiFi.status() != WL_CONNECTED) {
     if (tempCounter>=30){ //30 attempts = 15 Seconds
-      connectedToWifi = false;
       Serial.println("");
       Serial.println("WiFi not connected");
       return;
@@ -36,10 +35,14 @@ void setup_wifi() {
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
-  connectedToWifi = true;
 }
 
-//---------------------specify mqtt server adress
+void endWifi(){
+  WiFi.mode(WIFI_OFF);
+  annoyingTryingToConnectIndicator = false;
+}
+
+//---------------------set mqtt server adress
 void setup_MQTT(){
   Serial.print("set MQTT Server: ");
   client.setServer(mqtt_server, mqttPort); //specify the address and the port of the MQTT server
@@ -53,44 +56,46 @@ void setup_MQTT(){
 }
 
 //---------------------connect to the mgtt server
-//If not connected, reconnect i this function
+//If not connected, reconnect in this function
 //In the reconnect() function, you can subscribe to MQTT topics.
-void reconnect() {
-  int tempCounter = 0;
-  while (!client.connected()) {// Loop until we're reconnected
-    if (tempCounter>=1){ // 3 attempts = 15 Seconds
-      connectedToMQTT = false;
-      break;
-    }
-    Serial.print("Attempting MQTT connection..."); // Attempt to connect
-    if (client.connect("PlantAliveUser")) {
-      /*
-       * --> boolean connect (clientID, [username, password], [willTopic, willQoS, willRetain, willMessage], [cleanSession])
-       * function client.connect seems to only take direct strings but no variables
-       * therefore I have to insert a String
-       * Plantalive pots should differ in mgtt User name...?
-       */
-      Serial.println("connected");
-
-      //publish serial number
-      publishSerialNumber(serialNumber);
-
-      //subscribe channels
-      client.subscribe(channelMoisture);// Subscribe to the wanted topic to receive messages published on that topic from other clients.
-      client.subscribe(channelInfo);// Subscribe to the wanted topic to receive messages published on that topic from other clients.
-      connectedToMQTT = true;
-    } else {
-      connectedToMQTT = false;
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
-      tempCounter = tempCounter+1;
-      Serial.println("counter: "+String(tempCounter));
-      delay(5000);
+void connectMQTT() {
+  if (WiFi.status() == WL_CONNECTED){
+    int tempCounter = 0;
+    while (!client.connected()) {// Loop until we're reconnected
+      if (tempCounter>=1){ // 3 attempts = 15 Seconds
+        break;
+      }
+      Serial.print("Attempting MQTT connection..."); // Attempt to connect
+      if (client.connect("PlantAliveUser")) {
+        /*
+         * --> boolean connect (clientID, [username, password], [willTopic, willQoS, willRetain, willMessage], [cleanSession])
+         * function client.connect seems to only take direct strings but no variables
+         * therefore I have to insert a String
+         * Plantalive pots should differ in mgtt User name...?
+         */
+        Serial.println("connected");
+  
+        //publish serial number
+        publishSerialNumber(serialNumber);
+  
+        //subscribe channels
+        client.subscribe(channelMoisture);// Subscribe to the wanted topic to receive messages published on that topic from other clients.
+        client.subscribe(channelInfo);// Subscribe to the wanted topic to receive messages published on that topic from other clients.
+      } else {
+        Serial.print("failed, rc=");
+        Serial.print(client.state());
+        Serial.println(" try again in 5 seconds");
+        tempCounter = tempCounter+1;
+        Serial.println("counter: "+String(tempCounter));
+        delay(5000);
+      }
     }
   }
 }
 
+void disconnectMQTT(){
+  //client.stop();
+}
 
 //---------------------callback function
 //In the callback() function, the ESP32 receives the MQTT messages of the subscribed topics. According to the MQTT topic and message, it turns the LED on or off:
@@ -124,7 +129,7 @@ void callback(char* topic, byte* message, unsigned int mLength) {
 //---------------------help functions
 void cyclicMQTTStuff(){
   if (!client.connected()) {
-    reconnect();
+    connectMQTT();
   }
   client.loop(); //This should be called regularly to allow the client to process incoming messages and maintain its connection to the server.
   publishMQTTMsgInfo();

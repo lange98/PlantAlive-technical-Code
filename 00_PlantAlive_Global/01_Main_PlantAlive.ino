@@ -12,16 +12,20 @@ void setup(void) {
   soilMoistureLimit = 50;
   soilMoistureTemp = soilMoistureLimit;
 
-  //build up wifi communication
+
+  setup_MQTT(); //setup MQTT server
+  
   displayBoot("wifi"); //show "connecting to wifi" on display
-  setup_wifi();
-  //build up mqtt-server-connection
-  setup_MQTT();
+  setup_wifi();//build up wifi communication
   displayBoot("mqtt"); //show "connecting to mqtt" on display
-  reconnect();
+  connectMQTT();//build up mqtt-server-connection
+  disconnectMQTT();
+  endWifi();
 
   bootingDone();
   updateTime = millis(); // Next update time
+
+  
 
 
   xTaskCreatePinnedToCore( //pin task for MQTT publishing to core1
@@ -39,14 +43,12 @@ void loop() {
   if (updateTime <= millis()) {
     updateTime = millis() + LOOP_PERIOD;
 
-    calcMoisture();
+    if (!annoyingTryingToConnectIndicator){ //wifi module blocks all analog pins in channel 1
+      calcMoisture();
+    }
     calcDistance();
     calcTemperature();
     updateDisplay(false, "");
-
-    //if (connectedToMQTT){
-    //  cyclicMQTTStuff();
-    //}
 
     if (soilmoisturePercent<soilMoistureLimit){
       //pump
@@ -56,8 +58,8 @@ void loop() {
       //alert
       return;
     }
-    Serial.print("stuff running on core ");
-    Serial.println(xPortGetCoreID());
+    //Serial.print("stuff running on core ");
+    //Serial.println(xPortGetCoreID());
   }
 
   if (debounceTime <= millis()){
@@ -66,14 +68,18 @@ void loop() {
 }
 
 void TaskMQTTcode( void * Parameter ){ // task for MQTT publishing --> core 1
-  Serial.print("Task2 running on core ");
-  Serial.println(xPortGetCoreID());
-
+  //Serial.print("Task2 running on core ");
+  //Serial.println(xPortGetCoreID());
+  delay(10000);
+  
   for(;;){
-    if (connectedToMQTT){
+    setup_wifi();//build up wifi communication
+    connectMQTT();//build up mqtt-server-connection
+    if (client.connected()){
       cyclicMQTTStuff();
     }
-    Serial.println("test MQTT stuff");
+    disconnectMQTT();
+    endWifi();
     delay(10000);
   }
 }

@@ -63,13 +63,13 @@ void displayDefault(){
   tft.drawString(String(soilMoistureLimit), x, 80, 4);
   //connections
   tft.setTextPadding( tft.textWidth("X", 4) );
-  if (connectedToWifi){
+  if (WiFi.status() == WL_CONNECTED){
     tft.drawString("X", 10, 200, 4);
   }
   else{
     tft.drawString(" ", 10, 200, 4);
   }
-  if (connectedToMQTT){
+  if (client.connected()){
     tft.drawString("X", x, 200, 4);
   }  
   else{

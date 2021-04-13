@@ -40,8 +40,6 @@ uint32_t updateTime = 0; // time for next update
 int soilMoistureLimit;
 int soilMoistureTemp;
 const String serialNumber = WiFi.macAddress();
-bool connectedToWifi = false;
-bool connectedToMQTT = false;
 TaskHandle_t TaskMQTT; //MQTT tast --> will be running on core 1
 //--------------------------Display------------------------------
 TFT_eSPI tft = TFT_eSPI(); // Invoke custom library
@@ -78,6 +76,7 @@ bool btnPlus;
 bool btnEnter;
 int debounceTime; // for button-debouncing
 
-//--------------------------MQTT------------------------------
+//--------------------------MQTT and WIFI------------------------
+bool annoyingTryingToConnectIndicator;
 WiFiClient espClient; //allows to create a connection to a certain IP and port.
 PubSubClient client(espClient); //receives as input of the constructor the previously defined WiFiClient object
