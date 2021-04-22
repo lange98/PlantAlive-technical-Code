@@ -7,11 +7,13 @@ void setup(void) {
   setupButtons();
   setupUltrasonic();
 
-
    // set soilMoistureLimit
   soilMoistureLimit = 50;
   soilMoistureTemp = soilMoistureLimit;
 
+  //relay
+  pinMode(relay, OUTPUT);
+  digitalWrite(relay, HIGH);
 
   setup_MQTT(); //setup MQTT server
   
@@ -24,6 +26,7 @@ void setup(void) {
 
   bootingDone();
   updateTime = millis(); // Next update time
+  wateringUpdateTime = millis() + 60000;
 
   
 
@@ -54,8 +57,14 @@ void loop() { //calculate sensor data; activate pump; check distance
       doButtons(); // display control via buttons
     }
 
-    if (soilmoisturePercent<soilMoistureLimit){
-      //pump
+    if (wateringUpdateTime <= millis()) {
+      if (soilmoisturePercent<soilMoistureLimit){
+        //pump 3 secs
+        digitalWrite(relay, LOW);
+        delay(wateringTime);
+        digitalWrite(relay, HIGH);
+        wateringUpdateTime = millis() + wateringUpdateDelay;
+      }
     }
     if (distance<1000){//irgend ein limit
       //alert
@@ -68,7 +77,7 @@ void loop() { //calculate sensor data; activate pump; check distance
 void TaskMQTTcode( void * Parameter ){ // task for MQTT publishing --> core 1
   //Serial.print("Task2 running on core ");
   //Serial.println(xPortGetCoreID());
-  delay(10000);
+  delay(20000);
   
   for(;;){ // conect to wifi; connect to mqtt server; oublish data
     setup_wifi();//build up wifi communication
@@ -78,6 +87,6 @@ void TaskMQTTcode( void * Parameter ){ // task for MQTT publishing --> core 1
     }
     disconnectMQTT();
     endWifi();
-    delay(30000);
+    delay(120000);
   }
 }

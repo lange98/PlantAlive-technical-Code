@@ -3,7 +3,7 @@
 //Functions
 void setupDisplay(){
   tft.init();
-  tft.setRotation(0);
+  tft.setRotation(45);
   tft.fillScreen(TFT_BLACK);
   tft.setFreeFont(CF_OL24);
 

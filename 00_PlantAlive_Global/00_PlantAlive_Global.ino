@@ -14,6 +14,8 @@
 
 //------------------Defines
 #define LOOP_PERIOD 100 // Display updates every 35 ms
+#define wateringUpdateDelay 60000 //max time between 2 pumping operations
+#define wateringTime 5000 //will water this value in milliseconds
 #define CF_OL24 &Orbitron_Light_24 //Display font
 #define leftPIN 26 //button-pin defines
 #define middleLeftPIN 25 //button-pin defines
@@ -41,6 +43,8 @@ int soilMoistureLimit;
 int soilMoistureTemp;
 const String serialNumber = WiFi.macAddress();
 TaskHandle_t TaskMQTT; //MQTT tast --> will be running on core 1
+const int relay = 16; //watering
+uint32_t wateringUpdateTime;
 //--------------------------Display------------------------------
 TFT_eSPI tft = TFT_eSPI(); // Invoke custom library
 uint16_t x = tft.width()/2; // center of the screen horizontal
