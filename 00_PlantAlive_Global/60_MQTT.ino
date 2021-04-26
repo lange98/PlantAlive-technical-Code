@@ -1,7 +1,7 @@
 
 //---------------------Initialise
-const char* ssid = "Funknetz-blablub"; //Network SSID
-const char* password = "987gast654"; //Network PASSWORD
+const char* ssid = "AndroidAP697a"; //"Funknetz-blablub"; //Network SSID
+const char* password = "DoLa654321"; //"987gast654"; //Network PASSWORD
 const char* mqtt_server = "192.168.179.37"; //MQTT Broker IP address; EXAMPLE: "192.168.1.144"
 const int mqttPort = 1883; //MQTT Port
 

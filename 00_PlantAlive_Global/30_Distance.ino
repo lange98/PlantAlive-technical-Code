@@ -22,7 +22,25 @@ void calcDistance(){//distance sensor
     //Serial.println(duration);
     
     // Calculating the distance
-    distance= duration*0.034/2*10;
-    //Serial.print("Distance: ");
-    //Serial.println(distance);
+    int realDistance= duration*0.034/2*10;
+    Serial.print("Distance: ");
+    Serial.println(realDistance);
+
+    //for steps out of real distance (mm)
+    if (realDistance >= 100){
+      distance = 1;
+    }
+    else if(realDistance >=80){
+      distance = 2;
+    }
+    else if(realDistance >=60){
+      distance = 3;
+    }
+    else if(realDistance >=20){
+      distance = 4;
+    }
+    else if(realDistance < 20){
+      distance = 5;
+    }
+
 }

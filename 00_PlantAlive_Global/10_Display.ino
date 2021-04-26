@@ -82,7 +82,7 @@ void displayDefault(){
   tft.drawString(String(temperatureC)+"C", x, 120, 4);
   //waterlevel
   tft.setTextPadding( tft.textWidth("-888.88C", 4) );
-  tft.drawString(String(distance)+"ml", x, 160, 4);
+  tft.drawString(String(distance)+"/5", x, 160, 4);
   
   // Reset text padding to 0 otherwise all future rendered strings will use it!
   tft.setTextPadding(0);
