@@ -81,9 +81,14 @@ void TaskMQTTcode( void * Parameter ){ // task for MQTT publishing --> core 1
   
   for(;;){ // conect to wifi; connect to mqtt server; oublish data
     setup_wifi();//build up wifi communication
+    setup_MQTT();
     connectMQTT();//build up mqtt-server-connection
     if (client.connected()){
+      Serial.println("serial connected");
       cyclicMQTTStuff();
+      delay(10000);
+      cyclicMQTTStuff();
+      delay(1000);
     }
     disconnectMQTT();
     endWifi();

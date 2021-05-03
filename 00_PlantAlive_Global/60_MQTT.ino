@@ -2,7 +2,7 @@
 //---------------------Initialise
 const char* ssid = "AndroidAP697a"; //"Funknetz-blablub"; //Network SSID
 const char* password = "DoLa654321"; //"987gast654"; //Network PASSWORD
-const char* mqtt_server = "192.168.179.37"; //MQTT Broker IP address; EXAMPLE: "192.168.1.144"
+const char* mqtt_server = "192.168.43.106"; //MQTT Broker IP address; EXAMPLE: "192.168.1.144"
 const int mqttPort = 1883; //MQTT Port
 
 
@@ -128,11 +128,10 @@ void callback(char* topic, byte* message, unsigned int mLength) {
 
 //---------------------help functions
 void cyclicMQTTStuff(){
-  if (!client.connected()) {
-    connectMQTT();
-  }
   client.loop(); //This should be called regularly to allow the client to process incoming messages and maintain its connection to the server.
+  Serial.println("loop");
   publishMQTTMsgInfo();
+  Serial.println("publish");
 }
 
 
@@ -173,10 +172,8 @@ void publishMQTTMsgInfo(){ //channel needs to be declared dynamically
   testDocument[MoistureKey] = soilmoisturePercent;
   testDocument[TemperatureKey] = temperatureC;
   testDocument[DistanceKey] = distance;
-
   char MSGBuffer[100];
   serializeJson(testDocument, MSGBuffer);
-
   client.publish(channel[0], MSGBuffer);
 }
 
